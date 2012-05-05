@@ -14,24 +14,17 @@ DICTIONARY_LIST = {
     'american': 'en',
     'brasileiro': 'pt_BR',
     'british': 'en_GB',
-    'castellano': 'es',
-    'castellano8': 'es',
+    'castellano': 'es', 'castellano8': 'es',
     'dansk': 'da',
     'default': 'en',
-    'deutsch': 'de',
-    'deutsch8': 'de',
+    'deutsch': 'de', 'deutsch8': 'de',
     'english': 'en',
-    'francais': 'fr',
-    'francais-tex': 'fr',
-    'francais7': 'fr',
-    'german': 'de',
-    'german8': 'de',
+    'francais': 'fr', 'francais-tex': 'fr', 'francais7': 'fr',
+    'german': 'de', 'german8': 'de',
     'italiano': 'it',
-    'nederlands': 'nl',
-    'nederlands8': 'nl',
+    'nederlands': 'nl', 'nederlands8': 'nl',
     'portugues': 'pt',
-    'russian': 'ru',
-    'russianw': 'ru',
+    'russian': 'ru', 'russianw': 'ru',
     'svenska': 'sv',
 }
 # FIXME: czech, esperanto, esperanto-tex, norsk, norsk7-tex, polish, slovak, slovenian, svenska
@@ -151,7 +144,7 @@ def pipe_mode(checker):
     sys.stdout.write(MACSPELL + '\n')
     while True:
         line = get_line()
-        if len(line) == 0:
+        if not line:
             break
         if line[0] == '!':
             logger.debug('Enter terse mode')
