@@ -107,8 +107,9 @@ def set_language(checker, language):
 def add_word(checker, word):
     from Cocoa import NSString
     _word = NSString.stringWithString_(word)
-    logger.info('Learning word ' + word)
-    checker.learnWord_(_word)
+    if not checker.hasLearnedWord_(_word):
+        logger.info('Learning word ' + word)
+        checker.learnWord_(_word)
 
 def ignore_word(checker, word):
     from Cocoa import NSString
@@ -119,8 +120,9 @@ def ignore_word(checker, word):
 def remove_word(checker, word):
     from Cocoa import NSString
     _word = NSString.stringWithString_(word)
-    logger.info('Unlearning word ' + word)
-    checker.unlearnWord_(_word)
+    if checker.hasLearnedWord_(_word):
+        logger.info('Unlearning word ' + word)
+        checker.unlearnWord_(_word)
 
 def list_mode(checker):
     logger.debug('Entered into List Mode')
