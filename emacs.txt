@@ -1,0 +1,3 @@
+; MacSpell
+(setq ispell-program-name "/path/to/macspell.py")
+(setq ispell-extra-args '("--encoding=latin1" "--auto-lang=no"))
