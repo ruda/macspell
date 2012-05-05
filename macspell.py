@@ -167,11 +167,11 @@ def pipe_mode(checker):
             continue
         if line[0] == '*':
             logger.debug('Add to personal dictionary')
-            add_word(checker, line[1:].lstrip())
+            add_word(checker, line[1:].strip())
             continue
         if line[0] == '@':
             logger.debug('Accept word, but leave out of dictionary')
-            ignore_word(checker, line[1:].lstrip())
+            ignore_word(checker, line[1:].strip())
             continue
         if line.startswith('~nroff'):
             continue
