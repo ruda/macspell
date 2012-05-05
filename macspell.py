@@ -209,6 +209,26 @@ def pipe_mode(checker):
                     sys.stdout.write( '& ' + word.encode(Config['ENCODING']) + ' %d %d:' % (n, _range.location) + ' ' + words.encode(Config['ENCODING']) + '\n' )
         sys.stdout.write( '\n' )
 
+def learn_mode(checker):
+    logger.debug('Entered into Learn Mode')
+    logger.debug('Current language: ' + checker.language())
+    logger.debug('Current encoding: ' + Config['ENCODING'])
+    while True:
+        line = get_line()
+        if not line:
+            break
+        add_word(checker, line.strip())
+
+def unlearn_mode(checker):
+    logger.debug('Entered into Unlearn Mode')
+    logger.debug('Current language: ' + checker.language())
+    logger.debug('Current encoding: ' + Config['ENCODING'])
+    while True:
+        line = get_line()
+        if not line:
+            break
+        remove_word(checker, line.strip())
+
 def usage(prog_name):
     print '''Usage: %s [options] [command]
 Where [command] is one of:
@@ -216,6 +236,8 @@ Where [command] is one of:
   -v|--version	display version
   -l|--list	list mode, "ispell -l" compatibility mode
   -a|--pipe	pipe mode, "ispell -a" compatibility mode
+  --learn	learn mode, learn new words from pipe
+  --unlearn	unlearn mode, forget words from pipe
   --list-dict	list all dictionaries available
   --list-lang	list all languages available
 and [options] is any of the following:
@@ -241,25 +263,29 @@ def main(argv=None):
     try:
         opts, args = getopt.getopt(argv[1:],
                                    'vhalmBCd:D',
-                                   ('version', 'help', 'pipe', 'list', 'master=', 'dict=', 'lang=', 'encoding=', 'list-dict', 'list-lang', 'auto-lang='))
+                                   ('version', 'help', 'pipe', 'list', 'master=', 'dict=', 'lang=', 'encoding=', 'list-dict', 'list-lang', 'auto-lang=', 'learn', 'unlearn'))
     except getopt.error, msg:
         print >> sys.stderr, msg[0]
         return 2
-    enter_list = enter_pipe = False
+    enter_list = enter_pipe = enter_learn = enter_unlearn = False
     for opt, arg in opts:
-        if opt in ('-v', '--version'):
+        if opt == '-v' or opt == '--version':
             print MACSPELL
             return 0
-        if opt in ('-h', '--help'):
+        if opt  == '-h' or opt == '--help':
             usage(sys.argv[0])
             return 0
-        if opt in ('-l', '--list'):
+        if opt == '-l' or opt == '--list':
             enter_list = True
-        if opt in ('-a', '--pipe'):
+        if opt == '-a' or opt == '--pipe':
             enter_pipe = True
+        if opt == '--learn':
+            enter_learn = True
+        if opt == '--unlearn':
+            enter_unlearn = True
         if opt in ('-m', '-B', '-C'):
             pass
-        if opt in ('-d', '--dict', '--master'):
+        if opt == '-d' or opt == '--dict' or opt == '--master':
             dict2lang(arg)
         if opt == '--lang':
             Config['LANG'] = arg
@@ -281,7 +307,7 @@ def main(argv=None):
             for d in dicts:
                 print '%s (%s)' % (d, DICTIONARY_LIST[d])
             return 0
-        if opt in ('--encoding'):
+        if opt == '--encoding':
             logger.debug('Set encoding to ' + arg)
             Config['ENCODING'] = arg
 
@@ -293,6 +319,15 @@ def main(argv=None):
         checker = get_checker()
         set_language(checker, Config['LANG'])
         pipe_mode(checker)
+    if enter_learn:
+        checker = get_checker()
+        set_language(checker, Config['LANG'])
+        learn_mode(checker)
+    if enter_unlearn:
+        checker = get_checker()
+        set_language(checker, Config['LANG'])
+        unlearn_mode(checker)
+
     logger.debug('Goodbye from MacSpell!')
     return 0
 
