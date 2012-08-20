@@ -1,1 +1,2 @@
 MacSpell is a spell checker designed on Cocoa's spell-checking facilities.
+MacSpell can function as an "ispell -a" replacement.
