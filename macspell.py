@@ -47,25 +47,25 @@ logger = logging.getLogger('MacSpell')
 
 def get_line():
     line = sys.stdin.readline()
-    logger.debug('Got line: %s' % line)
+    logger.debug('Got line: %s', line)
     return unicode(line, Config['ENCODING'])
 
 def get_checker():
     from Cocoa import NSSpellChecker
     checker = NSSpellChecker.sharedSpellChecker()
-    logger.debug('Got checker: ' + str(checker))
+    logger.debug('Got checker: %s', str(checker))
     return checker
 
 def check_spelling(checker, string, start=0):
     from Cocoa import NSString
     _string = NSString.stringWithString_(string)
     _range, _count = checker.checkSpellingOfString_startingAt_language_wrap_inSpellDocumentWithTag_wordCount_(_string, start, None, False, 0, None)
-    logger.debug('Check spelling: %s range: %s count: %d' % (string.encode('utf-8'), _range, _count))
+    logger.debug('Check spelling: %s range: %s count: %d', string.encode('utf-8'), _range, _count)
     if _range.length == 0:
         return True, _count, None, None
     else:
         word = string[_range.location:_range.location+_range.length]
-        logger.info('Misspelled word: ' + word.encode('utf-8'))
+        logger.info('Misspelled word: %s', word.encode('utf-8'))
         return False, _count, _range, word
 
 def guesses(checker, string, _range):
@@ -74,14 +74,14 @@ def guesses(checker, string, _range):
     _words = checker.guessesForWordRange_inString_language_inSpellDocumentWithTag_(_range, _string, None, 0)
     n = len(_words)
     words = u', '.join(_words)
-    logger.info('Guesses: ' + words)
+    logger.info('Guesses: %s', words)
     return n, words
 
 def dict2lang(dictionary):
     if DICTIONARY_LIST.has_key(dictionary):
         Config['LANG'] = DICTIONARY_LIST[dictionary]
     else:
-        logger.debug('Invalid dictionary: ' + dictionary)
+        logger.debug('Invalid dictionary: %s', dictionary)
         print 'Invalid dictionary ' + dictionary
         sys.exit(1)
 
@@ -91,9 +91,9 @@ def set_language(checker, language):
     checker.setAutomaticallyIdentifiesLanguages_(Config['AUTO_LANG'])
     res = checker.setLanguage_(language)
     if res:
-        logger.info('Selected language ' + language)
+        logger.info('Selected language: %s', language)
     else:
-        logger.error('Invalid language: ' + language)
+        logger.error('Invalid language: %s', language)
         print 'Invalid language', language
         sys.exit(1)
 
@@ -101,26 +101,26 @@ def add_word(checker, word):
     from Cocoa import NSString
     _word = NSString.stringWithString_(word)
     if not checker.hasLearnedWord_(_word):
-        logger.info('Learning word ' + word)
+        logger.info('Learning word: %s', word)
         checker.learnWord_(_word)
 
 def ignore_word(checker, word):
     from Cocoa import NSString
     _word = NSString.stringWithString_(word)
-    logger.info('Ignoring word ' + word)
+    logger.info('Ignoring word: %s', word)
     checker.ignoreWord_inSpellDocumentWithTag_(word, 0)
 
 def remove_word(checker, word):
     from Cocoa import NSString
     _word = NSString.stringWithString_(word)
     if checker.hasLearnedWord_(_word):
-        logger.info('Unlearning word ' + word)
+        logger.info('Unlearning word: %s', word)
         checker.unlearnWord_(_word)
 
 def list_mode(checker):
     logger.debug('Entered into List Mode')
-    logger.debug('Current language: ' + checker.language())
-    logger.debug('Current encoding: ' + Config['ENCODING'])
+    logger.debug('Current language: %s', checker.language())
+    logger.debug('Current encoding: %s', Config['ENCODING'])
     words = []
     while True:
         line = get_line()
@@ -139,8 +139,8 @@ def list_mode(checker):
 
 def pipe_mode(checker):
     logger.debug('Entered into Pipe Mode')
-    logger.debug('Current language: ' + checker.language())
-    logger.debug('Current encoding: ' + Config['ENCODING'])
+    logger.debug('Current language: %s', checker.language())
+    logger.debug('Current encoding: %s', Config['ENCODING'])
     sys.stdout.write(MACSPELL + '\n')
     while True:
         line = get_line()
@@ -206,8 +206,8 @@ def pipe_mode(checker):
 
 def learn_mode(checker):
     logger.debug('Entered into Learn Mode')
-    logger.debug('Current language: ' + checker.language())
-    logger.debug('Current encoding: ' + Config['ENCODING'])
+    logger.debug('Current language: %s', checker.language())
+    logger.debug('Current encoding: %S', Config['ENCODING'])
     while True:
         line = get_line()
         if not line:
@@ -216,8 +216,8 @@ def learn_mode(checker):
 
 def unlearn_mode(checker):
     logger.debug('Entered into Unlearn Mode')
-    logger.debug('Current language: ' + checker.language())
-    logger.debug('Current encoding: ' + Config['ENCODING'])
+    logger.debug('Current language: %s', checker.language())
+    logger.debug('Current encoding: %s', Config['ENCODING'])
     while True:
         line = get_line()
         if not line:
@@ -245,7 +245,7 @@ and [options] is any of the following:
 def main(argv=None):
     if argv == None:
         argv = sys.argv
-    logger.debug('MacSpell started with arguments: ' + ', '.join(argv[1:]))
+    logger.debug('MacSpell started with arguments: %s', ', '.join(argv[1:]))
     if os.environ.has_key('LANG'):
         lang = os.environ['LANG']
         if '.' in lang:
@@ -303,7 +303,7 @@ def main(argv=None):
                 print '%s (%s)' % (d, DICTIONARY_LIST[d])
             return 0
         if opt == '--encoding':
-            logger.debug('Set encoding to ' + arg)
+            logger.debug('Set encoding to: %s', arg)
             Config['ENCODING'] = arg
 
     if enter_list:
