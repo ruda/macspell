@@ -3,12 +3,13 @@
 #
 # Spell checker designed on Cocoa's spell-checking facilities.
 #
-# Copyright (c) 2012 Rudá Moura
+# Copyright (c) 2012, 2015 Rudá Moura
+# Licensed under the terms of BSD license
 #
 
 import os, sys, getopt, logging
 
-MACSPELL='@(#) International Ispell Version 3.1.20 (but really MacSpell 2012)'
+MACSPELL='@(#) International Ispell Version 3.1.20 (but really MacSpell 2015)'
 
 DICTIONARY_LIST = {
     'american': 'en',
