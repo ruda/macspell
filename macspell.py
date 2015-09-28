@@ -307,21 +307,17 @@ def main(argv=None):
             logger.debug('Set encoding to: %s', arg)
             Config['ENCODING'] = arg
 
-    if enter_list:
+    if enter_list or enter_pipe or enter_learn or enter_unlearn:
         checker = get_checker()
         set_language(checker, Config['LANG'])
+
+    if enter_list:
         list_mode(checker)
     if enter_pipe:
-        checker = get_checker()
-        set_language(checker, Config['LANG'])
         pipe_mode(checker)
     if enter_learn:
-        checker = get_checker()
-        set_language(checker, Config['LANG'])
         learn_mode(checker)
     if enter_unlearn:
-        checker = get_checker()
-        set_language(checker, Config['LANG'])
         unlearn_mode(checker)
 
     logger.debug('Goodbye from MacSpell!')
