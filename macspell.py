@@ -120,8 +120,6 @@ def remove_word(checker, word):
 
 def list_mode(checker):
     logger.debug('Entered into List Mode')
-    logger.debug('Current language: %s', checker.language())
-    logger.debug('Current encoding: %s', Config['ENCODING'])
     words = []
     while True:
         line = get_line()
@@ -140,8 +138,6 @@ def list_mode(checker):
 
 def pipe_mode(checker):
     logger.debug('Entered into Pipe Mode')
-    logger.debug('Current language: %s', checker.language())
-    logger.debug('Current encoding: %s', Config['ENCODING'])
     sys.stdout.write(MACSPELL + '\n')
     while True:
         line = get_line()
@@ -207,8 +203,6 @@ def pipe_mode(checker):
 
 def learn_mode(checker):
     logger.debug('Entered into Learn Mode')
-    logger.debug('Current language: %s', checker.language())
-    logger.debug('Current encoding: %S', Config['ENCODING'])
     while True:
         line = get_line()
         if not line:
@@ -217,8 +211,6 @@ def learn_mode(checker):
 
 def unlearn_mode(checker):
     logger.debug('Entered into Unlearn Mode')
-    logger.debug('Current language: %s', checker.language())
-    logger.debug('Current encoding: %s', Config['ENCODING'])
     while True:
         line = get_line()
         if not line:
@@ -310,6 +302,8 @@ def main(argv=None):
     if enter_list or enter_pipe or enter_learn or enter_unlearn:
         checker = get_checker()
         set_language(checker, Config['LANG'])
+        logger.debug('Current language: %s', checker.language())
+        logger.debug('Current encoding: %s', Config['ENCODING'])
 
     if enter_list:
         list_mode(checker)
