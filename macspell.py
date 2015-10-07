@@ -304,20 +304,23 @@ def unlearn_mode(checker):
 
 def usage(prog_name):
     print '''Usage: %s [options] [command]
+
 Where [command] is one of:
-  -h|--help	display this help
-  -v|--version	display version
+  -h|--help		display this help
+  -v|--version		display version
   -c|--check=<file>	check mode, spell check file and write to file
-  -x|--dont-back        do not create backup file (see option --check)
-  -l|--list	list mode, "ispell -l" compatibility mode
-  -a|--pipe	pipe mode, "ispell -a" compatibility mode
-  --learn	learn mode, learn new words from pipe
-  --unlearn	unlearn mode, forget words from pipe
-  --list-dict	list all dictionaries available
-  --list-lang	list all languages available
+  -l|--list		list mode, "ispell -l" compatibility mode
+  -a|--pipe		pipe mode, "ispell -a" compatibility mode
+  --learn		learn mode, learn new words from pipe
+  --unlearn		unlearn mode, forget words from pipe
+  --list-dict		list all dictionaries available
+  --list-lang		list all languages available
   --list-user-lang	list user preferred languages
+
 and [options] is any of the following:
-  -d|--dict=|--master=<dict>	name of the dictionary to use (english, american, brasileiro, etc.)
+  -x|--dont-back	do not create backup file (see option --check)
+  -d|--dict=|--master=<dict>	name of the dictionary to use
+			(english, american, brasileiro, etc.)
   --lang=<code>		name of the language to use (en, en_US, pt_BR, etc.)
   --encoding=<enc>	text encoding to use (utf-8, latin1, etc.)
   --auto-lang=[yes|no]	automatically identify languages
