@@ -53,6 +53,12 @@ def get_line(stream=None):
     logger.debug('Got line: %s', line)
     return unicode(line, Config['ENCODING'])
 
+def put_line(line, stream=None):
+    if stream is None:
+        stream = sys.stdout
+    logger.debug('Put line: %s', line)
+    stream.write(line.encode(Config['ENCODING']))
+
 def get_checker():
     from Cocoa import NSSpellChecker
     checker = NSSpellChecker.sharedSpellChecker()
