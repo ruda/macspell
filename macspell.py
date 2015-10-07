@@ -109,7 +109,7 @@ def ignore_word(checker, word):
     from Cocoa import NSString
     _word = NSString.stringWithString_(word)
     logger.info('Ignoring word: %s', word)
-    checker.ignoreWord_inSpellDocumentWithTag_(word, 0)
+    checker.ignoreWord_inSpellDocumentWithTag_(_word, 0)
 
 def remove_word(checker, word):
     from Cocoa import NSString
