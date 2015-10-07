@@ -46,8 +46,10 @@ logging.basicConfig(filename=Config['LOG_FILENAME'],
                     level=Config['LOG_LEVEL'])
 logger = logging.getLogger('MacSpell')
 
-def get_line():
-    line = sys.stdin.readline()
+def get_line(stream=None):
+    if stream is None:
+        stream = sys.stdin
+    line = stream.readline()
     logger.debug('Got line: %s', line)
     return unicode(line, Config['ENCODING'])
 
