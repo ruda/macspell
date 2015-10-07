@@ -228,6 +228,7 @@ Where [command] is one of:
   --unlearn	unlearn mode, forget words from pipe
   --list-dict	list all dictionaries available
   --list-lang	list all languages available
+  --list-user-lang	list user preferred languages
 and [options] is any of the following:
   -d|--dict=|--master=<dict>	name of the dictionary to use (english, american, brasileiro, etc.)
   --lang=<code>		name of the language to use (en, en_US, pt_BR, etc.)
@@ -287,6 +288,11 @@ def main(argv=None):
         if opt == '--list-lang':
             checker = get_checker()
             dicts = checker.availableLanguages()
+            for d in dicts:
+                print d
+        if opt == '--list-user-lang':
+            checker = get_checker()
+            dicts = checker.userPreferredLanguages()
             for d in dicts:
                 print d
         if opt == '--list-dict':
