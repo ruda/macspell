@@ -7,7 +7,7 @@
 # Licensed under the terms of BSD license
 #
 
-import os, sys, getopt, logging
+import os, sys, getopt, logging, shutil, tempfile
 
 MACSPELL='@(#) International Ispell Version 3.1.20 (but really MacSpell 2015)'
 
@@ -37,6 +37,7 @@ Config = {
     'AUTO_LANG': None,
     'LANG': 'en',
     'ENCODING': 'utf-8',
+    'TERMINAL_ENCODING': sys.stdin.encoding,
 }
 
 if os.environ.has_key('DEBUG'):
@@ -125,6 +126,82 @@ def remove_word(checker, word):
     if checker.hasLearnedWord_(_word):
         logger.info('Unlearning word: %s', word)
         checker.unlearnWord_(_word)
+
+def check_mode(checker, original, temporary):
+    logger.debug('Entered into Check Mode')
+    while True:
+        line = get_line(original)
+        if not line:
+            return True
+        last = 0
+        while True:
+            ok, count, _range, word = check_spelling(checker, line, last)
+            if ok:
+                put_line(line[last:], temporary)
+                break
+            else:
+                put_line(line[last:_range.location], temporary)
+                last = _range.location + _range.length
+                sys.stdout.write(line)
+                print ' ' * _range.location + '^' * _range.length
+                print 'Misspelled word:', word
+                n, words = guesses(checker, line, _range)
+                words = words.split(', ')
+                for i in range(n):
+                    print 'Action %d: Replace with word %s' % (i, words[i])
+                print 'Action r: Replace with another word'
+                print 'Action l: Learn this word'
+                print 'Action i: Ignore this word'
+                print 'Action s: Skip to next word'
+                print 'Action x: Exit from MacSpell'
+                while True:
+                    new_word = None
+                    try:
+                        action = raw_input('? ')
+                    except KeyboardInterrupt:
+                        return False
+                    if not action:
+                        continue
+                    if action[0] in ('x', 'X', 'q', 'Q'):
+                        return False
+                    elif action[0] in ('r', 'R'):
+                        try:
+                            new_word = raw_input('Replace with word? ').strip()
+                            new_word = unicode(new_word, Config['TERMINAL_ENCODING'])
+                        except KeyboardInterrupt:
+                            print 'Please, redo your action!'
+                            continue
+                        else:
+                            break
+                    elif action[0] in ('i', 'I'):
+                        ignore_word(checker, word)
+                        break
+                    elif action[0] in ('l', 'L'):
+                        add_word(checker, word)
+                        break
+                    elif action[0] in ('s', 'S', 'n', 'N'):
+                        break
+                    elif action[0] in "0123456789":
+                        try:
+                            i = int(action)
+                        except ValueError:
+                            print 'Not a number!'
+                            continue
+                        else:
+                            if i < n:
+                                new_word = words[i]
+                                print 'Replacing with word %s' % new_word
+                                break
+                            else:
+                                print 'Invalid number!'
+                                continue
+                    else:
+                        print 'Invalid action!'
+                        continue
+                if new_word:
+                    put_line(new_word, temporary)
+                else:
+                    put_line(word, temporary)
 
 def list_mode(checker):
     logger.debug('Entered into List Mode')
@@ -230,6 +307,8 @@ def usage(prog_name):
 Where [command] is one of:
   -h|--help	display this help
   -v|--version	display version
+  -c|--check=<file>	check mode, spell check file and write to file
+  -x|--dont-back        do not create backup file (see option --check)
   -l|--list	list mode, "ispell -l" compatibility mode
   -a|--pipe	pipe mode, "ispell -a" compatibility mode
   --learn	learn mode, learn new words from pipe
@@ -259,12 +338,13 @@ def main(argv=None):
         dict2lang(dict)
     try:
         opts, args = getopt.getopt(argv[1:],
-                                   'vhalmBCd:D',
-                                   ('version', 'help', 'pipe', 'list', 'master=', 'dict=', 'lang=', 'encoding=', 'list-dict', 'list-lang', 'auto-lang=', 'learn', 'unlearn'))
+                                   'vhalmBCd:Dc:x',
+                                   ('version', 'help', 'check=', 'dont-backup', 'pipe', 'list', 'master=', 'dict=', 'lang=', 'encoding=', 'list-dict', 'list-lang', 'list-user-lang', 'auto-lang=', 'learn', 'unlearn'))
     except getopt.error, msg:
         print >> sys.stderr, msg[0]
         return 2
-    enter_list = enter_pipe = enter_learn = enter_unlearn = False
+    backup = True
+    enter_check = enter_list = enter_pipe = enter_learn = enter_unlearn = False
     for opt, arg in opts:
         if opt == '-v' or opt == '--version':
             print MACSPELL
@@ -272,6 +352,11 @@ def main(argv=None):
         if opt  == '-h' or opt == '--help':
             usage(sys.argv[0])
             return 0
+        if opt == '-c' or opt == '--check':
+            enter_check = True
+            filename = arg
+        if opt == '-x' or opt == '--dont-backup':
+            backup = False
         if opt == '-l' or opt == '--list':
             enter_list = True
         if opt == '-a' or opt == '--pipe':
@@ -313,12 +398,23 @@ def main(argv=None):
             logger.debug('Set encoding to: %s', arg)
             Config['ENCODING'] = arg
 
-    if enter_list or enter_pipe or enter_learn or enter_unlearn:
+    if enter_check or enter_list or enter_pipe or enter_learn or enter_unlearn:
         checker = get_checker()
         set_language(checker, Config['LANG'])
         logger.debug('Current language: %s', checker.language())
         logger.debug('Current encoding: %s', Config['ENCODING'])
 
+    if enter_check:
+        if backup:
+            shutil.copy2(filename, filename + ".bak")
+        fd, tmpfile = tempfile.mkstemp(prefix='macspell')
+        logger.debug('Temporary file: %s', tmpfile)
+        os.close(fd)
+        with open(tmpfile, 'w') as tmpobj:
+            with open(filename) as fileobj:
+                status = check_mode(checker, fileobj, tmpobj)
+        if not os.environ.has_key('DEBUG') and status is True:
+            shutil.move(tmpfile, filename)
     if enter_list:
         list_mode(checker)
     if enter_pipe:
