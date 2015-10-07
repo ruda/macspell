@@ -1,12 +1,22 @@
+DESTDIR?=/
 PREFIX=/usr/local
 BINDIR=$(PREFIX)/bin
+PYTHON=/usr/bin/python
+PYTHON_SITE_PACKAGES=$(shell python -c 'from distutils.sysconfig import get_python_lib; print(get_python_lib())')
+
+build:
+	$(PYTHON) setup.py build
 
 install:
-	install -m 775 -d $(DESTDIR)/$(BINDIR)
-	install -m 775 macspell.py $(DESTDIR)/$(BINDIR)/macspell
+	$(PYTHON) setup.py install \
+		--root=$(DESTDIR) \
+		--prefix=$(PREFIX) \
+		--install-lib=$(PYTHON_SITE_PACKAGES)
 
 uninstall:
 	rm -f $(BINDIR)/macspell
 
 clean:
 	rm -f *~ *.pyc
+	$(PYTHON) setup.py clean
+	rm -rf build dist *.egg-info
