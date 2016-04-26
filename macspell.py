@@ -7,6 +7,7 @@
 # Licensed under the terms of BSD license
 #
 
+from __future__ import print_function
 import os, sys, getopt, logging, shutil, tempfile
 
 MACSPELL='@(#) International Ispell Version 3.1.20 (but really MacSpell 2015)'
@@ -40,23 +41,37 @@ Config = {
     'TERMINAL_ENCODING': sys.stdin.encoding,
 }
 
-if os.environ.has_key('DEBUG'):
+if 'DEBUG' in os.environ:
     Config['LOG_LEVEL'] = logging.DEBUG
 
 logging.basicConfig(filename=Config['LOG_FILENAME'],
                     level=Config['LOG_LEVEL'])
 logger = logging.getLogger('MacSpell')
 
+try:
+    # Python 2
+    input = raw_input
+except NameError:
+    pass
+
 def get_line(stream=None):
     if stream is None:
-        stream = sys.stdin
-    line = stream.readline()
+        try:
+            # Python 3
+            stream = sys.stdin.buffer
+        except AttributeError:
+            stream = sys.stdin
+    line = stream.readline().decode(Config['ENCODING'])
     logger.debug('Got line: %s', line)
-    return unicode(line, Config['ENCODING'])
+    return line
 
 def put_line(line, stream=None):
     if stream is None:
-        stream = sys.stdout
+        try:
+            # Python 3
+            stream = sys.stdout.buffer
+        except AttributeError:
+            stream = sys.stdout
     logger.debug('Put line: %s', line)
     stream.write(line.encode(Config['ENCODING']))
 
@@ -70,12 +85,12 @@ def check_spelling(checker, string, start=0):
     from Cocoa import NSString
     _string = NSString.stringWithString_(string)
     _range, _count = checker.checkSpellingOfString_startingAt_language_wrap_inSpellDocumentWithTag_wordCount_(_string, start, None, False, 0, None)
-    logger.debug('Check spelling: %s range: %s count: %d', string.encode('utf-8'), _range, _count)
+    logger.debug('Check spelling: %s range: %s count: %d', string, _range, _count)
     if _range.length == 0:
         return True, _count, None, None
     else:
         word = string[_range.location:_range.location+_range.length]
-        logger.info('Misspelled word: %s', word.encode('utf-8'))
+        logger.info('Misspelled word: %s', word)
         return False, _count, _range, word
 
 def guesses(checker, string, _range):
@@ -88,11 +103,11 @@ def guesses(checker, string, _range):
     return n, words
 
 def dict2lang(dictionary):
-    if DICTIONARY_LIST.has_key(dictionary):
+    if dictionary in DICTIONARY_LIST:
         Config['LANG'] = DICTIONARY_LIST[dictionary]
     else:
         logger.debug('Invalid dictionary: %s', dictionary)
-        print 'Invalid dictionary ' + dictionary
+        print('Invalid dictionary ' + dictionary)
         sys.exit(1)
 
 def set_language(checker, language):
@@ -104,7 +119,7 @@ def set_language(checker, language):
         logger.info('Selected language: %s', language)
     else:
         logger.error('Invalid language: %s', language)
-        print 'Invalid language', language
+        print('Invalid language', language)
         sys.exit(1)
 
 def add_word(checker, word):
@@ -143,21 +158,21 @@ def check_mode(checker, original, temporary):
                 put_line(line[last:_range.location], temporary)
                 last = _range.location + _range.length
                 sys.stdout.write(line)
-                print ' ' * _range.location + '^' * _range.length
-                print 'Misspelled word:', word
+                print(' ' * _range.location + '^' * _range.length)
+                print('Misspelled word:', word)
                 n, words = guesses(checker, line, _range)
                 words = words.split(', ')
                 for i in range(n):
-                    print 'Action %d: Replace with word %s' % (i, words[i])
-                print 'Action r: Replace with another word'
-                print 'Action l: Learn this word'
-                print 'Action i: Ignore this word'
-                print 'Action s: Skip to next word'
-                print 'Action x: Exit from MacSpell'
+                    print('Action %d: Replace with word %s' % (i, words[i]))
+                print('Action r: Replace with another word')
+                print('Action l: Learn this word')
+                print('Action i: Ignore this word')
+                print('Action s: Skip to next word')
+                print('Action x: Exit from MacSpell')
                 while True:
                     new_word = None
                     try:
-                        action = raw_input('? ')
+                        action = input('? ')
                     except KeyboardInterrupt:
                         return False
                     if not action:
@@ -166,10 +181,14 @@ def check_mode(checker, original, temporary):
                         return False
                     elif action[0] in ('r', 'R'):
                         try:
-                            new_word = raw_input('Replace with word? ').strip()
-                            new_word = unicode(new_word, Config['TERMINAL_ENCODING'])
+                            new_word = input('Replace with word? ').strip()
+                            try:
+                                # Python 2
+                                new_word = unicode(new_word, Config['TERMINAL_ENCODING'])
+                            except NameError:
+                                pass
                         except KeyboardInterrupt:
-                            print 'Please, redo your action!'
+                            print('Please, redo your action!')
                             continue
                         else:
                             break
@@ -185,18 +204,18 @@ def check_mode(checker, original, temporary):
                         try:
                             i = int(action)
                         except ValueError:
-                            print 'Not a number!'
+                            print('Not a number!')
                             continue
                         else:
                             if i < n:
                                 new_word = words[i]
-                                print 'Replacing with word %s' % new_word
+                                print('Replacing with word %s' % new_word)
                                 break
                             else:
-                                print 'Invalid number!'
+                                print('Invalid number!')
                                 continue
                     else:
-                        print 'Invalid action!'
+                        print('Invalid action!')
                         continue
                 if new_word:
                     put_line(new_word, temporary)
@@ -219,7 +238,7 @@ def list_mode(checker):
                 last = _range.location + _range.length
                 words.append(word)
     for word in words:
-        print word
+        print(word)
 
 def pipe_mode(checker):
     logger.debug('Entered into Pipe Mode')
@@ -280,11 +299,19 @@ def pipe_mode(checker):
                 if Config['TERSE_MODE'] == False:
                     for x in range(count-1):
                         sys.stdout.write( '*\n' )
+                try:
+                    stdout = sys.stdout.buffer
+                except AttributeError:
+                    stdout = sys.stdout
                 if n == 0:
-                    sys.stdout.write( '# ' + word.encode(Config['ENCODING']) + ' ' + str(_range.location) + '\n' )
+                    stdout.write(b'# ' + word.encode(Config['ENCODING']) + b' '
+                                 + str(_range.location).encode() + b'\n')
                 else:
-                    sys.stdout.write( '& ' + word.encode(Config['ENCODING']) + ' %d %d:' % (n, _range.location) + ' ' + words.encode(Config['ENCODING']) + '\n' )
-        sys.stdout.write( '\n' )
+                    stdout.write(
+                        b'& ' + word.encode(Config['ENCODING']) + b' %d %d:'
+                        % (n, _range.location) + b' '
+                        + words.encode(Config['ENCODING']) + b'\n')
+        sys.stdout.write('\n')
 
 def learn_mode(checker):
     logger.debug('Entered into Learn Mode')
@@ -303,7 +330,7 @@ def unlearn_mode(checker):
         remove_word(checker, line.strip())
 
 def usage(prog_name):
-    print '''Usage: %s [options] [command]
+    print('''Usage: %s [options] [command]
 
 Where [command] is one of:
   -h|--help		display this help
@@ -324,33 +351,33 @@ and [options] is any of the following:
   --lang=<code>		name of the language to use (en, en_US, pt_BR, etc.)
   --encoding=<enc>	text encoding to use (utf-8, latin1, etc.)
   --auto-lang=[yes|no]	automatically identify languages
-''' % prog_name
+''' % prog_name)
 
 def main(argv=None):
     if argv == None:
         argv = sys.argv
     logger.debug('MacSpell started with arguments: %s', ', '.join(argv[1:]))
-    if os.environ.has_key('LANG'):
+    if 'LANG' in os.environ:
         lang = os.environ['LANG']
         if '.' in lang:
             lang, enc = lang.split('.')
             Config['ENCODING'] = enc.lower()
         Config['LANG'] = lang
-    if os.environ.has_key('DICTIONARY'):
+    if 'DICTIONARY' in os.environ:
         dict = os.environ['DICTIONARY']
         dict2lang(dict)
     try:
         opts, args = getopt.getopt(argv[1:],
                                    'vhalmBCd:Dc:x',
                                    ('version', 'help', 'check=', 'dont-backup', 'pipe', 'list', 'master=', 'dict=', 'lang=', 'encoding=', 'list-dict', 'list-lang', 'list-user-lang', 'auto-lang=', 'learn', 'unlearn'))
-    except getopt.error, msg:
-        print >> sys.stderr, msg[0]
+    except getopt.error as msg:
+        print(msg[0], file=sys.stderr)
         return 2
     backup = True
     enter_check = enter_list = enter_pipe = enter_learn = enter_unlearn = False
     for opt, arg in opts:
         if opt == '-v' or opt == '--version':
-            print MACSPELL
+            print(MACSPELL)
             return 0
         if opt  == '-h' or opt == '--help':
             usage(sys.argv[0])
@@ -385,17 +412,17 @@ def main(argv=None):
             checker = get_checker()
             dicts = checker.availableLanguages()
             for d in dicts:
-                print d
+                print(d)
         if opt == '--list-user-lang':
             checker = get_checker()
             dicts = checker.userPreferredLanguages()
             for d in dicts:
-                print d
+                print(d)
         if opt == '--list-dict':
-            dicts = DICTIONARY_LIST.keys()
+            dicts = list(DICTIONARY_LIST.keys())
             dicts.sort()
             for d in dicts:
-                print '%s (%s)' % (d, DICTIONARY_LIST[d])
+                print('%s (%s)' % (d, DICTIONARY_LIST[d]))
             return 0
         if opt == '--encoding':
             logger.debug('Set encoding to: %s', arg)
@@ -413,10 +440,10 @@ def main(argv=None):
         fd, tmpfile = tempfile.mkstemp(prefix='macspell')
         logger.debug('Temporary file: %s', tmpfile)
         os.close(fd)
-        with open(tmpfile, 'w') as tmpobj:
-            with open(filename) as fileobj:
+        with open(tmpfile, 'wb') as tmpobj:
+            with open(filename, 'rb') as fileobj:
                 status = check_mode(checker, fileobj, tmpobj)
-        if not os.environ.has_key('DEBUG') and status is True:
+        if 'DEBUG' not in os.environ and status is True:
             shutil.move(tmpfile, filename)
     if enter_list:
         list_mode(checker)
