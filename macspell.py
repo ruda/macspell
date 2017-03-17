@@ -3,14 +3,19 @@
 #
 # Spell checker designed on Cocoa's spell-checking facilities.
 #
-# Copyright (c) 2012, 2015 Rudá Moura
+# Copyright (c) 2012-2017 Rudá Moura
 # Licensed under the terms of BSD license
 #
 
 from __future__ import print_function
-import os, sys, getopt, logging, shutil, tempfile
+import os
+import sys
+import getopt
+import logging
+import shutil
+import tempfile
 
-MACSPELL='@(#) International Ispell Version 3.1.20 (but really MacSpell 2015)'
+MACSPELL = '@(#) International Ispell Version 3.1.20 (but really MacSpell 2017)'
 
 DICTIONARY_LIST = {
     'american': 'en',
@@ -29,7 +34,8 @@ DICTIONARY_LIST = {
     'russian': 'ru', 'russianw': 'ru',
     'svenska': 'sv',
 }
-# FIXME: czech, esperanto, esperanto-tex, norsk, norsk7-tex, polish, slovak, slovenian, svenska
+# FIXME: czech, esperanto, esperanto-tex, norsk, norsk7-tex, polish,
+# slovak, slovenian, svenska
 
 Config = {
     'LOG_LEVEL': logging.INFO,
@@ -54,6 +60,7 @@ try:
 except NameError:
     pass
 
+
 def get_line(stream=None):
     if stream is None:
         try:
@@ -65,6 +72,7 @@ def get_line(stream=None):
     logger.debug('Got line: %s', line)
     return line
 
+
 def put_line(line, stream=None):
     if stream is None:
         try:
@@ -75,32 +83,39 @@ def put_line(line, stream=None):
     logger.debug('Put line: %s', line)
     stream.write(line.encode(Config['ENCODING']))
 
+
 def get_checker():
     from Cocoa import NSSpellChecker
     checker = NSSpellChecker.sharedSpellChecker()
     logger.debug('Got checker: %s', str(checker))
     return checker
 
+
 def check_spelling(checker, string, start=0):
     from Cocoa import NSString
     _string = NSString.stringWithString_(string)
-    _range, _count = checker.checkSpellingOfString_startingAt_language_wrap_inSpellDocumentWithTag_wordCount_(_string, start, None, False, 0, None)
-    logger.debug('Check spelling: %s range: %s count: %d', string, _range, _count)
+    _range, _count = checker.checkSpellingOfString_startingAt_language_wrap_inSpellDocumentWithTag_wordCount_(
+        _string, start, None, False, 0, None)
+    logger.debug('Check spelling: %s range: %s count: %d',
+                 string, _range, _count)
     if _range.length == 0:
         return True, _count, None, None
     else:
-        word = string[_range.location:_range.location+_range.length]
+        word = string[_range.location:_range.location + _range.length]
         logger.info('Misspelled word: %s', word)
         return False, _count, _range, word
+
 
 def guesses(checker, string, _range):
     from Cocoa import NSString, NSRange
     _string = NSString.stringWithString_(string)
-    _words = checker.guessesForWordRange_inString_language_inSpellDocumentWithTag_(_range, _string, None, 0)
+    _words = checker.guessesForWordRange_inString_language_inSpellDocumentWithTag_(
+        _range, _string, None, 0)
     n = len(_words)
     words = u', '.join(_words)
     logger.info('Guesses: %s', words)
     return n, words
+
 
 def dict2lang(dictionary):
     if dictionary in DICTIONARY_LIST:
@@ -109,6 +124,7 @@ def dict2lang(dictionary):
         logger.debug('Invalid dictionary: %s', dictionary)
         print('Invalid dictionary ' + dictionary)
         sys.exit(1)
+
 
 def set_language(checker, language):
     if Config['AUTO_LANG'] == None:
@@ -122,6 +138,7 @@ def set_language(checker, language):
         print('Invalid language', language)
         sys.exit(1)
 
+
 def add_word(checker, word):
     from Cocoa import NSString
     _word = NSString.stringWithString_(word)
@@ -129,11 +146,13 @@ def add_word(checker, word):
         logger.info('Learning word: %s', word)
         checker.learnWord_(_word)
 
+
 def ignore_word(checker, word):
     from Cocoa import NSString
     _word = NSString.stringWithString_(word)
     logger.info('Ignoring word: %s', word)
     checker.ignoreWord_inSpellDocumentWithTag_(_word, 0)
+
 
 def remove_word(checker, word):
     from Cocoa import NSString
@@ -141,6 +160,7 @@ def remove_word(checker, word):
     if checker.hasLearnedWord_(_word):
         logger.info('Unlearning word: %s', word)
         checker.unlearnWord_(_word)
+
 
 def check_mode(checker, original, temporary):
     logger.debug('Entered into Check Mode')
@@ -184,7 +204,8 @@ def check_mode(checker, original, temporary):
                             new_word = input('Replace with word? ').strip()
                             try:
                                 # Python 2
-                                new_word = unicode(new_word, Config['TERMINAL_ENCODING'])
+                                new_word = unicode(
+                                    new_word, Config['TERMINAL_ENCODING'])
                             except NameError:
                                 pass
                         except KeyboardInterrupt:
@@ -222,6 +243,7 @@ def check_mode(checker, original, temporary):
                 else:
                     put_line(word, temporary)
 
+
 def list_mode(checker):
     logger.debug('Entered into List Mode')
     words = []
@@ -239,6 +261,7 @@ def list_mode(checker):
                 words.append(word)
     for word in words:
         print(word)
+
 
 def pipe_mode(checker):
     logger.debug('Entered into Pipe Mode')
@@ -291,14 +314,14 @@ def pipe_mode(checker):
             if ok:
                 if Config['TERSE_MODE'] == False:
                     for x in range(count):
-                        sys.stdout.write( '*\n' )
+                        sys.stdout.write('*\n')
                 break
             else:
                 last = _range.location + _range.length
                 n, words = guesses(checker, line, _range)
                 if Config['TERSE_MODE'] == False:
-                    for x in range(count-1):
-                        sys.stdout.write( '*\n' )
+                    for x in range(count - 1):
+                        sys.stdout.write('*\n')
                 try:
                     stdout = sys.stdout.buffer
                 except AttributeError:
@@ -313,6 +336,7 @@ def pipe_mode(checker):
                         + words.encode(Config['ENCODING']) + b'\n')
         sys.stdout.write('\n')
 
+
 def learn_mode(checker):
     logger.debug('Entered into Learn Mode')
     while True:
@@ -321,6 +345,7 @@ def learn_mode(checker):
             break
         add_word(checker, line.strip())
 
+
 def unlearn_mode(checker):
     logger.debug('Entered into Unlearn Mode')
     while True:
@@ -328,6 +353,7 @@ def unlearn_mode(checker):
         if not line:
             break
         remove_word(checker, line.strip())
+
 
 def usage(prog_name):
     print('''Usage: %s [options] [command]
@@ -352,6 +378,7 @@ and [options] is any of the following:
   --encoding=<enc>	text encoding to use (utf-8, latin1, etc.)
   --auto-lang=[yes|no]	automatically identify languages
 ''' % prog_name)
+
 
 def main(argv=None):
     if argv == None:
@@ -379,7 +406,7 @@ def main(argv=None):
         if opt == '-v' or opt == '--version':
             print(MACSPELL)
             return 0
-        if opt  == '-h' or opt == '--help':
+        if opt == '-h' or opt == '--help':
             usage(sys.argv[0])
             return 0
         if opt == '-c' or opt == '--check':
@@ -456,6 +483,7 @@ def main(argv=None):
 
     logger.debug('Goodbye from MacSpell!')
     return 0
+
 
 if __name__ == '__main__':
     sys.exit(main())

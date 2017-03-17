@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name="macspell",
-    version="2015.10",
+    version="2017",
     license="BSD",
     platforms=["Darwin"],
     description="MacSpell spell checker",
@@ -16,7 +16,6 @@ setup(
     scripts=["macspell.py"],
     classifiers = [
         "Programming Language :: Python", 
-        "Programming Language :: Python :: 2",
         "License :: OSI Approved :: BSD License",
         "Environment :: MacOS X",
         "Operating System :: MacOS :: MacOS X",

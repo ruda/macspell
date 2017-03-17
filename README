@@ -4,7 +4,7 @@ Features:
 * Pure command line utility
 * Interactive spelling checker capability
 * Can act as Ispell replacement (ispell -a)
-* All dictionaries included (it uses the NSSpellChecker provided by OS X)
+* All dictionaries included, it uses the dictionaries provided by macOS.
 
 Usage:
 $ macspell --check README.txt
