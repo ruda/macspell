@@ -5,25 +5,26 @@ MacSpell is a spell checker designed on Cocoa's spell-checking facilities.
 Features:
 * Pure command line utility
 * Interactive spelling checker capability
-* Can act as Ispell replacement (`ispell -a`)
-* All dictionaries included (it uses the `NSSpellChecker` provided by OS X)
+* Can act as Ispell replacement (ispell -a)
+* All dictionaries included, it uses the dictionaries provided by macOS
 
 ### Installation ###
 
 The quick and easy way to install is:
 
-    curl -O https://raw.github.com/ruda/macspell/master/macspell.py
+    curl -RO https://raw.githubusercontent.com/ruda/macspell/2017/macspell.py
     chmod +x macspell.py
 
-Another alternative is to install with Python's `easy_install` tool:
+Another alternative is to install with Python's `easy_install` or `pip` tool:
 
     sudo easy_install macspell
+    sudo pip install macspell
 
-The utility can be found in `/usr/local/bin/macspell.py`.
+The utility will be found at `/usr/local/bin/macspell.py`.
 
 ### Usage ###
 
-List possible misspelled words from file README.
+List all possible misspelled words from file README.
 
     macspell.py --list < README
 
@@ -39,7 +40,7 @@ Learning new words.
     foobar
     ^D
 
-Forget learned words:
+Forgetting learned words:
 
     macspell.py --unlearn
     Rudá
@@ -49,9 +50,9 @@ Forget learned words:
 
 ### MacSpell and Emacs ###
 
-On Emacs, you can run the spell checker with `M-x ispell-buffer` or change to any dictionary, like “Brazilian Portuguese”, with `M-x ispell-change-dictionary RET brasileiro RET`.
+On Emacs, you can run the spell checker with `M-x ispell-buffer`. Also, you can change to any dictionary, like “Brazilian Portuguese”, with `M-x ispell-change-dictionary RET brasileiro RET`.
 
-To use MacSpell in Emacs, just include the above lines in your Emacs initialization file:
+To use MacSpell in Emacs, just include the following lines in your Emacs initialization file:
 
     ;; MacSpell
     (setq ispell-program-name "/path/to/macspell.py"
