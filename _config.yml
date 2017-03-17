@@ -1,0 +1,8 @@
+title: MacSpell
+description: A spell checker designed on Cocoa's spell-checking facilities
+google_analytics: UA-1050966-13
+show_downloads: true
+theme: jekyll-theme-cayman
+
+gems:
+  - jekyll-mentions
