@@ -4,8 +4,8 @@ from setuptools import setup
 
 setup(
     name="macspell",
-    version="2017",
-    license="BSD",
+    version="2019",
+    license="MIT",
     platforms=["Darwin"],
     description="MacSpell spell checker",
     long_description="MacSpell is a spell checker designed on Cocoa's spell-checking facilities",
@@ -16,7 +16,7 @@ setup(
     scripts=["macspell.py"],
     classifiers = [
         "Programming Language :: Python", 
-        "License :: OSI Approved :: BSD License",
+        "License :: OSI Approved :: MIT License",
         "Environment :: MacOS X",
         "Operating System :: MacOS :: MacOS X",
         "Topic :: Text Processing",

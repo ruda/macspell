@@ -3,8 +3,8 @@
 #
 # Spell checker designed on Cocoa's spell-checking facilities.
 #
-# Copyright (c) 2012-2017 Rudá Moura
-# Licensed under the terms of BSD license
+# Copyright (c) 2012-2019 Rudá Moura
+# The MIT License (MIT)
 #
 
 from __future__ import print_function
@@ -15,7 +15,7 @@ import logging
 import shutil
 import tempfile
 
-MACSPELL = '@(#) International Ispell Version 3.1.20 (but really MacSpell 2017)'
+MACSPELL = '@(#) International Ispell Version 3.1.20 (but really MacSpell 2019)'
 
 DICTIONARY_LIST = {
     'american': 'en',
