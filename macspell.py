@@ -3,7 +3,7 @@
 #
 # Spell checker designed on Cocoa's spell-checking facilities.
 #
-# Copyright (c) 2012-2019 Rudá Moura
+# Copyright (c) 2012-2020 Rudá Moura
 # The MIT License (MIT)
 #
 
