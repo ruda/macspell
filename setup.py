@@ -14,8 +14,8 @@ setup(
     url="http://ruda.github.io/macspell/",
     keywords="spell checker ispell",
     scripts=["macspell.py"],
-    classifiers = [
-        "Programming Language :: Python", 
+    classifiers=[
+        "Programming Language :: Python",
         "License :: OSI Approved :: MIT License",
         "Environment :: MacOS X",
         "Operating System :: MacOS :: MacOS X",
