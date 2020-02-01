@@ -35,7 +35,7 @@ DICTIONARY_LIST = {
     'svenska': 'sv',
 }
 # FIXME: czech, esperanto, esperanto-tex, norsk, norsk7-tex, polish,
-# slovak, slovenian, svenska
+#        slovak, slovenian, svenska
 
 Config = {
     'LOG_LEVEL': logging.INFO,
@@ -127,7 +127,7 @@ def dict2lang(dictionary):
 
 
 def set_language(checker, language):
-    if Config['AUTO_LANG'] == None:
+    if Config['AUTO_LANG'] is None:
         Config['AUTO_LANG'] = checker.automaticallyIdentifiesLanguages()
     checker.setAutomaticallyIdentifiesLanguages_(Config['AUTO_LANG'])
     res = checker.setLanguage_(language)
@@ -312,14 +312,14 @@ def pipe_mode(checker):
         while True:
             ok, count, _range, word = check_spelling(checker, line, last)
             if ok:
-                if Config['TERSE_MODE'] == False:
+                if not Config['TERSE_MODE']:
                     for x in range(count):
                         sys.stdout.write('*\n')
                 break
             else:
                 last = _range.location + _range.length
                 n, words = guesses(checker, line, _range)
-                if Config['TERSE_MODE'] == False:
+                if not Config['TERSE_MODE']:
                     for x in range(count - 1):
                         sys.stdout.write('*\n')
                 try:
@@ -381,7 +381,7 @@ and [options] is any of the following:
 
 
 def main(argv=None):
-    if argv == None:
+    if argv is None:
         argv = sys.argv
     logger.debug('MacSpell started with arguments: %s', ', '.join(argv[1:]))
     if 'LANG' in os.environ:
@@ -394,9 +394,10 @@ def main(argv=None):
         dict = os.environ['DICTIONARY']
         dict2lang(dict)
     try:
-        opts, args = getopt.getopt(argv[1:],
-                                   'vhalmBCd:Dc:x',
-                                   ('version', 'help', 'check=', 'dont-backup', 'pipe', 'list', 'master=', 'dict=', 'lang=', 'encoding=', 'list-dict', 'list-lang', 'list-user-lang', 'auto-lang=', 'learn', 'unlearn'))
+        opts, args = getopt.getopt(argv[1:], 'vhalmBCd:Dc:x', (
+            'version', 'help', 'check=', 'dont-backup', 'pipe', 'list',
+            'master=', 'dict=', 'lang=', 'encoding=', 'list-dict', 'list-lang',
+            'list-user-lang', 'auto-lang=', 'learn', 'unlearn'))
     except getopt.error as msg:
         print(msg[0], file=sys.stderr)
         return 2
@@ -446,8 +447,7 @@ def main(argv=None):
             for d in dicts:
                 print(d)
         if opt == '--list-dict':
-            dicts = list(DICTIONARY_LIST.keys())
-            dicts.sort()
+            dicts = sorted(DICTIONARY_LIST.keys())
             for d in dicts:
                 print('%s (%s)' % (d, DICTIONARY_LIST[d]))
             return 0
