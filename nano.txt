@@ -1,1 +1,1 @@
-set speller "/path/to/macspell.py -x -c"
+set speller "macspell -x -c"

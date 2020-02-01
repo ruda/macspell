@@ -2,9 +2,11 @@
 
 from setuptools import setup
 
+import macspell
+
 setup(
     name="macspell",
-    version="2020.2",
+    version=macspell.__version__,
     license="MIT",
     platforms=["Darwin"],
     description="MacSpell spell checker",
@@ -13,8 +15,11 @@ setup(
     author_email="ruda.moura@gmail.com",
     url="http://ruda.github.io/macspell/",
     keywords="spell checker ispell",
-    scripts=["macspell.py"],
+    packages=["macspell"],
     install_requires=["pyobjc-framework-Cocoa"],
+    entry_points={
+        "console_scripts": ["macspell=macspell.cmd:main"],
+    },
     classifiers=[
         "Programming Language :: Python",
         "License :: OSI Approved :: MIT License",
