@@ -1,4 +1,4 @@
 ;; MacSpell
-(setq ispell-program-name "/path/to/macspell.py")
+(setq ispell-program-name "macspell")
 (setq ispell-extra-args '("--encoding=latin1" "--auto-lang=no"))
 ;(setq ispell-dictionary "english")

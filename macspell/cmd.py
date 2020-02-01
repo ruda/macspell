@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
 # Spell checker designed on Cocoa's spell-checking facilities.
@@ -15,7 +14,10 @@ import logging
 import shutil
 import tempfile
 
-MACSPELL = '@(#) International Ispell Version 3.1.20 (but really MacSpell 2020.2)'
+import macspell
+
+VERSION = '@(#) International Ispell Version 3.1.20 (but really MacSpell %s)' \
+    % macspell.__version__
 
 DICTIONARY_LIST = {
     'american': 'en',
@@ -274,7 +276,7 @@ def list_mode(checker):
 
 def pipe_mode(checker):
     logger.debug('Entered into Pipe Mode')
-    print_unbuffered(MACSPELL)
+    print_unbuffered(VERSION)
     while True:
         line = get_line()
         if not line:
@@ -414,7 +416,7 @@ def main(argv=None):
     enter_check = enter_list = enter_pipe = enter_learn = enter_unlearn = False
     for opt, arg in opts:
         if opt == '-v' or opt == '--version':
-            print_unbuffered(MACSPELL)
+            print_unbuffered(VERSION)
             return 0
         if opt == '-h' or opt == '--help':
             usage(sys.argv[0])
@@ -492,7 +494,3 @@ def main(argv=None):
 
     logger.debug('Goodbye from MacSpell!')
     return 0
-
-
-if __name__ == '__main__':
-    sys.exit(main())
