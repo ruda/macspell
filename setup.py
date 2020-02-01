@@ -14,6 +14,7 @@ setup(
     url="http://ruda.github.io/macspell/",
     keywords="spell checker ispell",
     scripts=["macspell.py"],
+    install_requires=["pyobjc-framework-Cocoa"],
     classifiers=[
         "Programming Language :: Python",
         "License :: OSI Approved :: MIT License",
