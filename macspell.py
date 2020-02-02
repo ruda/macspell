@@ -1,4 +1,4 @@
-#!/usr/bin/python -u
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
 # Spell checker designed on Cocoa's spell-checking facilities.
@@ -61,6 +61,11 @@ except NameError:
     pass
 
 
+def print_unbuffered(msg, file=sys.stdout):
+    print(msg, file=file)
+    file.flush()
+
+
 def get_line(stream=None):
     if stream is None:
         try:
@@ -82,6 +87,7 @@ def put_line(line, stream=None):
             stream = sys.stdout
     logger.debug('Put line: %s', line)
     stream.write(line.encode(Config['ENCODING']))
+    stream.flush()
 
 
 def get_checker():
@@ -122,7 +128,7 @@ def dict2lang(dictionary):
         Config['LANG'] = DICTIONARY_LIST[dictionary]
     else:
         logger.debug('Invalid dictionary: %s', dictionary)
-        print('Invalid dictionary ' + dictionary)
+        print_unbuffered('Invalid dictionary ' + dictionary)
         sys.exit(1)
 
 
@@ -135,7 +141,7 @@ def set_language(checker, language):
         logger.info('Selected language: %s', language)
     else:
         logger.error('Invalid language: %s', language)
-        print('Invalid language', language)
+        print_unbuffered('Invalid language', language)
         sys.exit(1)
 
 
@@ -178,17 +184,19 @@ def check_mode(checker, original, temporary):
                 put_line(line[last:_range.location], temporary)
                 last = _range.location + _range.length
                 sys.stdout.write(line)
-                print(' ' * _range.location + '^' * _range.length)
-                print('Misspelled word:', word)
+                sys.stdout.flush()
+                print_unbuffered(' ' * _range.location + '^' * _range.length)
+                print_unbuffered('Misspelled word:', word)
                 n, words = guesses(checker, line, _range)
                 words = words.split(', ')
                 for i in range(n):
-                    print('Action %d: Replace with word %s' % (i, words[i]))
-                print('Action r: Replace with another word')
-                print('Action l: Learn this word')
-                print('Action i: Ignore this word')
-                print('Action s: Skip to next word')
-                print('Action x: Exit from MacSpell')
+                    print_unbuffered('Action %d: Replace with word %s' %
+                                     (i, words[i]))
+                print_unbuffered('Action r: Replace with another word')
+                print_unbuffered('Action l: Learn this word')
+                print_unbuffered('Action i: Ignore this word')
+                print_unbuffered('Action s: Skip to next word')
+                print_unbuffered('Action x: Exit from MacSpell')
                 while True:
                     new_word = None
                     try:
@@ -209,7 +217,7 @@ def check_mode(checker, original, temporary):
                             except NameError:
                                 pass
                         except KeyboardInterrupt:
-                            print('Please, redo your action!')
+                            print_unbuffered('Please, redo your action!')
                             continue
                         else:
                             break
@@ -225,18 +233,19 @@ def check_mode(checker, original, temporary):
                         try:
                             i = int(action)
                         except ValueError:
-                            print('Not a number!')
+                            print_unbuffered('Not a number!')
                             continue
                         else:
                             if i < n:
                                 new_word = words[i]
-                                print('Replacing with word %s' % new_word)
+                                print_unbuffered('Replacing with word %s' %
+                                                 new_word)
                                 break
                             else:
-                                print('Invalid number!')
+                                print_unbuffered('Invalid number!')
                                 continue
                     else:
-                        print('Invalid action!')
+                        print_unbuffered('Invalid action!')
                         continue
                 if new_word:
                     put_line(new_word, temporary)
@@ -260,12 +269,12 @@ def list_mode(checker):
                 last = _range.location + _range.length
                 words.append(word)
     for word in words:
-        print(word)
+        print_unbuffered(word)
 
 
 def pipe_mode(checker):
     logger.debug('Entered into Pipe Mode')
-    sys.stdout.write(MACSPELL + '\n')
+    print_unbuffered(MACSPELL)
     while True:
         line = get_line()
         if not line:
@@ -334,7 +343,7 @@ def pipe_mode(checker):
                         b'& ' + word.encode(Config['ENCODING']) + b' %d %d:'
                         % (n, _range.location) + b' '
                         + words.encode(Config['ENCODING']) + b'\n')
-        sys.stdout.write('\n')
+        print_unbuffered('')  # \n
 
 
 def learn_mode(checker):
@@ -356,7 +365,7 @@ def unlearn_mode(checker):
 
 
 def usage(prog_name):
-    print('''Usage: %s [options] [command]
+    print_unbuffered('''Usage: %s [options] [command]
 
 Where [command] is one of:
   -h|--help		display this help
@@ -399,13 +408,13 @@ def main(argv=None):
             'master=', 'dict=', 'lang=', 'encoding=', 'list-dict', 'list-lang',
             'list-user-lang', 'auto-lang=', 'learn', 'unlearn'))
     except getopt.error as msg:
-        print(msg[0], file=sys.stderr)
+        print_unbuffered(msg[0], file=sys.stderr)
         return 2
     backup = True
     enter_check = enter_list = enter_pipe = enter_learn = enter_unlearn = False
     for opt, arg in opts:
         if opt == '-v' or opt == '--version':
-            print(MACSPELL)
+            print_unbuffered(MACSPELL)
             return 0
         if opt == '-h' or opt == '--help':
             usage(sys.argv[0])
@@ -440,16 +449,16 @@ def main(argv=None):
             checker = get_checker()
             dicts = checker.availableLanguages()
             for d in dicts:
-                print(d)
+                print_unbuffered(d)
         if opt == '--list-user-lang':
             checker = get_checker()
             dicts = checker.userPreferredLanguages()
             for d in dicts:
-                print(d)
+                print_unbuffered(d)
         if opt == '--list-dict':
             dicts = sorted(DICTIONARY_LIST.keys())
             for d in dicts:
-                print('%s (%s)' % (d, DICTIONARY_LIST[d]))
+                print_unbuffered('%s (%s)' % (d, DICTIONARY_LIST[d]))
             return 0
         if opt == '--encoding':
             logger.debug('Set encoding to: %s', arg)
