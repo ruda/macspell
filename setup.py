@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
 
+from io import open
+from os import path
 from setuptools import setup
 
 import macspell
+
+this_directory = path.abspath(path.dirname(__file__))
+with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
 setup(
     name="macspell",
@@ -10,7 +16,8 @@ setup(
     license="MIT",
     platforms=["Darwin"],
     description="MacSpell spell checker",
-    long_description="MacSpell is a spell checker designed on Cocoa's spell-checking facilities",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     author="Rudá Moura",
     author_email="ruda.moura@gmail.com",
     url="http://ruda.github.io/macspell/",

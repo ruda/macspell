@@ -1,11 +1,11 @@
 DESTDIR?=/
 PREFIX=/usr/local
 BINDIR=$(PREFIX)/bin
-PYTHON=/usr/bin/python
+PYTHON=python
 PYTHON_SITE_PACKAGES=$(shell python -c 'from distutils.sysconfig import get_python_lib; print(get_python_lib())')
 
 build:
-	$(PYTHON) setup.py build
+	$(PYTHON) setup.py bdist_wheel
 
 install:
 	$(PYTHON) setup.py install \
