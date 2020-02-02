@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name="macspell",
-    version="2019",
+    version="2020.2",
     license="MIT",
     platforms=["Darwin"],
     description="MacSpell spell checker",

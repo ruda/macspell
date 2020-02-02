@@ -15,7 +15,7 @@ import logging
 import shutil
 import tempfile
 
-MACSPELL = '@(#) International Ispell Version 3.1.20 (but really MacSpell 2019)'
+MACSPELL = '@(#) International Ispell Version 3.1.20 (but really MacSpell 2020.2)'
 
 DICTIONARY_LIST = {
     'american': 'en',
